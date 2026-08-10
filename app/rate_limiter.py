@@ -97,7 +97,25 @@ class TokenBucket:
         phần nạp thêm từ một mốc thời gian đã cũ, và xô tự đầy lại vô tội vạ.
         """
         # raise NotImplementedError("TODO (CP3): cài đặt consume")
-        
+        now = now if now is not None else time.time()
+        tokens = self.available(client_id, now)
+        key = self._key(client_id)
+
+        if tokens < 1:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="rate limit exceeded",
+                headers={"Retry-After": str(self.retry_after(tokens))},
+            )
+
+        self.client.hset(
+            key,
+            mapping={
+                "tokens": tokens - 1,
+                "ts": now,
+            },
+        )
+        self.client.expire(key, BUCKET_TTL_SECONDS)
 
 
     def retry_after(self, tokens: float) -> int:
