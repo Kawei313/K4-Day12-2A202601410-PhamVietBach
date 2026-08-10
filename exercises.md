@@ -3,7 +3,7 @@
 > **Bài làm cá nhân.** Trả lời bằng lời của chính bạn, dựa trên những gì bạn
 > quan sát được khi chạy code — không sao chép đáp án của người khác.
 >
-> Cách trả lời: thay dòng `> *Câu trả lời của bạn*` bằng câu trả lời.
+> Cách trả lời: thay dòng gợi ý dưới mỗi câu bằng câu trả lời.
 > `grade.py` đếm số câu đã trả lời (15 điểm cho 10 câu).
 >
 > Họ và tên: Phạm Việt Bách Mã học viên: 2A202601410
@@ -16,8 +16,6 @@ Trong `Settings`, `api_token` không có giá trị mặc định nên app chế
 khởi động nếu thiếu biến môi trường. Hãy mô tả một tình huống cụ thể mà việc
 "chết sớm" này cứu bạn, so với việc để mặc định `"changeme"`.
 
-> *Câu trả lời của bạn*
-
 ---Ví dụ khi deploy lên Render, tôi quên khai báo API_TOKEN trong Environment Variables. Nếu app dùng token mặc định "changeme", deploy vẫn thành công nhưng endpoint /chat có thể bị truy cập bằng token mặc định, dẫn đến spam và phát sinh chi phí. Khi không có giá trị mặc định, app dừng ngay lúc khởi động và log báo thiếu API_TOKEN; tôi phát hiện lỗi trước khi service được mở cho Internet.
 
 ### Câu 2 — Log cho máy đọc (CP1)
@@ -26,7 +24,6 @@ Chạy service và gọi `/chat` vài lần. Dán một dòng log JSON bạn thu
 nêu **hai** việc bạn làm được với dòng log đó mà `print("đã trả lời xong")`
 không làm được.
 
-> *Câu trả lời của bạn*
 Dòng log JSON thu được:
 
 ```json
@@ -54,7 +51,6 @@ docker images | grep chat
 
 Giải thích: phần dung lượng chênh lệch đó là những gì?
 
-> *Câu trả lời của bạn*
 Image multi-stage chỉ 183MB vì stage cuối dùng python:3.11-slim và chỉ nhận dependency đã cài từ stage builder cùng source code cần chạy. Các công cụ biên dịch, file trung gian và cache cài đặt không đi vào runtime. Bản 1-stage dùng python:3.11 đầy đủ, copy toàn bộ project rồi cài thư viện trực tiếp nên thường lớn hơn đáng kể; phần chênh lệch là các thành phần build và gói hệ điều hành không cần để chạy service.
 ---
 
@@ -64,7 +60,6 @@ Sửa một ký tự trong `app/main.py` rồi build lại. Với Dockerfile c�
 layer nào được dùng lại từ cache, layer nào phải chạy lại? Nếu bạn đặt
 `COPY . .` lên trước `RUN pip install` thì kết quả khác thế nào?
 
-> *Câu trả lời của bạn*
 Khi chỉ sửa một ký tự trong app/main.py:
 Các layer trước COPY app ./app được dùng lại từ cache: base image, WORKDIR, COPY requirements.txt, và RUN pip install.
 COPY app ./app bị chạy lại vì mã nguồn app/main.py đã đổi.
@@ -80,7 +75,6 @@ Container mặc định chạy bằng root. Mô tả chuỗi sự kiện dẫn t
 trong code Python của bạn" tới "kẻ tấn công có quyền cao trên máy host", và
 lệnh `USER` cắt đứt chuỗi đó ở chỗ nào.
 
-> *Câu trả lời của bạn*
 Một lỗ hổng trong Python app (ví dụ thực thi lệnh từ dữ liệu người dùng) có thể cho kẻ tấn công chạy lệnh bên trong container. Nếu container chạy bằng root, lệnh đó có đặc quyền root trong container. Nếu container lại có cấu hình nguy hiểm như mount Docker socket, bind-mount thư mục host, hoặc có lỗ hổng container runtime/kernel, họ có thể lợi dụng quyền đó để đọc/sửa dữ liệu host hoặc thoát container, dẫn đến quyền cao trên host.
 Lệnh:
 USER appuser
@@ -93,7 +87,6 @@ Vì sao 401 phải kèm header `WWW-Authenticate: Bearer`? Và vì sao ta trả 
 một** thông báo lỗi cho cả ba trường hợp (thiếu header, sai scheme, sai token)
 thay vì nói rõ sai ở đâu cho người dùng dễ sửa?
 
-> *Câu trả lời của bạn*
 WWW-Authenticate: Bearer đi kèm 401 Unauthorized để nói cho client biết endpoint dùng cơ chế xác thực Bearer token. Các thư viện HTTP, API client hoặc frontend nhờ đó biết cần gửi header dạng:
                   Authorization: Bearer <token>
 Ta trả cùng một thông báo lỗi cho thiếu header, sai scheme và sai token để không tiết lộ thông tin cho người tấn công. Nếu báo riêng “token không tồn tại” hoặc “token sai”, họ có thể dò token hoặc suy ra hệ thống đang dùng loại xác thực nào. Một lỗi chung như invalid or missing token vừa đủ cho client biết cần kiểm tra cấu hình, vừa giảm thông tin hữu ích cho việc tấn công.
@@ -105,7 +98,6 @@ Với `capacity=10`, `refill_per_minute=10`: một client im lặng 10 phút r�
 liên tiếp. Nó gửi được bao nhiêu request trước khi bị 429? Nếu bỏ đoạn
 `min(capacity, ...)` trong `available()` thì con số đó thành bao nhiêu, và tại sao?
 
-> *Câu trả lời của bạn*
 Với capacity=10, client gửi được 10 request rồi request thứ 11 bị 429. Sau 10 phút, xô đã đầy nhưng không thể vượt quá sức chứa 10.
 
 Nếu bỏ min(capacity, ...), client tích được 100 token sau 10 phút (10 token/phút × 10 phút), nên có thể gửi khoảng 100 request liên tiếp trước khi bị 429.
@@ -119,7 +111,6 @@ So sánh hạn mức $30/tháng với hạn mức $1/ngày cho cùng một clien
 cố khiến một client gọi liên tục từ 2h sáng. Với mỗi cách, thiệt hại tối đa là
 bao nhiêu và service tự hồi phục khi nào?
 
-> *Câu trả lời của bạn*
 Hạn mức $30/tháng: sự cố từ 2h sáng có thể tiêu hết tối đa $30 trong tháng đó. Client chỉ tự gọi lại được khi sang tháng mới, tức hạn mức được reset đầu tháng.
 
 Hạn mức $1/ngày: thiệt hại tối đa trong một ngày là $1. Client bị chặn phần còn lại của ngày và tự hoạt động lại khi sang ngày mới (sau 00:00 theo múi giờ hệ thống).
@@ -132,7 +123,6 @@ Vì vậy hạn mức theo ngày giảm “blast radius”: sự cố không th�
 Nếu gộp hai endpoint làm một và cho nó kiểm tra Redis, chuyện gì xảy ra với cụm
 3 container khi Redis mất kết nối 30 giây? Trả lời theo đúng thứ tự sự kiện.
 
-> *Câu trả lời của bạn*
 Trong 30 giây Redis mất kết nối, endpoint gộp sẽ trả lỗi vì không kiểm tra được Redis. Orchestrator hiểu nhầm cả 3 container đều “chết”, lần lượt restart hoặc thay thế chúng. Trong lúc restart, các request đang xử lý có thể bị ngắt và số container sẵn sàng phục vụ giảm, dù bản thân FastAPI/Uvicorn vẫn hoạt động bình thường. Khi Redis kết nối lại, các container mới khởi động xong và nhận traffic trở lại. Việc restart hàng loạt là không cần thiết; vì vậy /healthz chỉ nên kiểm tra app còn sống, còn /readyz mới kiểm tra Redis để tạm rút container khỏi traffic.
 ---
 
@@ -142,5 +132,4 @@ Ghi lại **một** lỗi bạn gặp khi deploy lên cloud (build fail, health 
 timeout, sai REDIS_URL, app không đọc `$PORT`...): thông báo lỗi là gì, bạn
 tìm ra nguyên nhân bằng cách nào, và sửa ra sao?
 
-> *Câu trả lời của bạn*
 Khi deploy, service không chạy được vì Dockerfile đặt lệnh CMD ở stage builder thay vì stage runtime cuối cùng. Render chỉ chạy image của stage cuối, nên image runtime không có lệnh khởi động Uvicorn. Tôi nhận ra nguyên nhân bằng cách kiểm tra lại Dockerfile theo thứ tự các stage và xem log build/deploy của Render: runtime stage thiếu CMD. Tôi sửa bằng cách chuyển CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"] xuống cuối stage runtime, sau đó commit/push để Render deploy lại. Health check /healthz trả về HTTP 200 sau khi service chạy thành công.
