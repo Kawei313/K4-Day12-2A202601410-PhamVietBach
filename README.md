@@ -1,3 +1,4 @@
+![CI](https://github.com/Kawei313/K4-Day12-2A202601410-PhamVietBach/actions/workflows/ci.yml/badge.svg)
 # K4 — Ngày 12: Hạ Tầng Cloud & Deployment (14h00–18h00)
 
 Đưa một chat service từ `localhost:8000` lên một địa chỉ công khai mà người khác
